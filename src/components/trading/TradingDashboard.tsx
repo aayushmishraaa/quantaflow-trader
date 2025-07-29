@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useStockData } from '@/hooks/useStockData';
+import { useRealStockData } from '@/hooks/useRealStockData';
 import { useTradingEngine } from '@/hooks/useTradingEngine';
 import { StockList } from './StockList';
 import { Portfolio } from './Portfolio';
@@ -12,7 +12,7 @@ import { ChartPanel } from './ChartPanel';
 import { TrendingUp, DollarSign, Activity, Target } from 'lucide-react';
 
 export const TradingDashboard: React.FC = () => {
-  const { stocks, getMarketData, isLoading } = useStockData();
+  const { stocks, getMarketData, isLoading, error } = useRealStockData();
   const { 
     portfolio, 
     trades, 
@@ -42,6 +42,17 @@ export const TradingDashboard: React.FC = () => {
   const totalPnlColor = portfolio.dayPnl >= 0 ? 'profit-text' : 'loss-text';
   const pnlIcon = portfolio.dayPnl >= 0 ? 'animate-pulse-profit' : 'animate-pulse-loss';
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading market data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -49,7 +60,14 @@ export const TradingDashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Trading Dashboard</h1>
-            <p className="text-muted-foreground">Professional algorithmic trading platform</p>
+            <div className="flex items-center gap-4">
+              <p className="text-muted-foreground">Professional algorithmic trading platform</p>
+              {error && (
+                <div className="px-3 py-1 bg-warning/10 border border-warning rounded-md">
+                  <p className="text-sm text-warning-foreground">{error}</p>
+                </div>
+              )}
+            </div>
           </div>
           <div className="text-right">
             <div className="text-sm text-muted-foreground">Portfolio Value</div>
